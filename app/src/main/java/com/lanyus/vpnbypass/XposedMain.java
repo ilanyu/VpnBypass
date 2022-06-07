@@ -24,14 +24,14 @@ public class XposedMain implements IXposedHookLoadPackage {
 
         hook(lpparam.classLoader);
 
-        XposedHelpers.findAndHookMethod(Application.class, "attach", Context.class, new XC_MethodHook() {
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-                super.afterHookedMethod(param);
-                ClassLoader classLoader = ((Context) param.args[0]).getClassLoader();
-                hook(classLoader);
-            }
-        });
+//        XposedHelpers.findAndHookMethod(Application.class, "attach", Context.class, new XC_MethodHook() {
+//            @Override
+//            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+//                super.afterHookedMethod(param);
+//                ClassLoader classLoader = ((Context) param.args[0]).getClassLoader();
+//                hook(classLoader);
+//            }
+//        });
     }
 
     public void hook(ClassLoader classLoader) {
