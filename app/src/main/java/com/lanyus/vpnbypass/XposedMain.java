@@ -40,8 +40,11 @@ public class XposedMain implements IXposedHookLoadPackage {
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 String arg = (String) param.args[0];
                 if (arg != null && (arg.equalsIgnoreCase("http.proxyHost") || arg.equalsIgnoreCase("http.proxyPort"))) {
-                    param.setResult(null);
-                    XposedBridge.log("com.lanyus.vpnbypass modify java.lang.System.getProperty(http.proxyHost) return null");
+                    String result = (String) param.getResult();
+                    if (result != null) {
+                        param.setResult(null);
+                        XposedBridge.log("com.lanyus.vpnbypass modify java.lang.System.getProperty(http.proxyHost) return null");
+                    }
                 }
             }
         });
@@ -62,8 +65,11 @@ public class XposedMain implements IXposedHookLoadPackage {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 if (((NetworkInfo) param.thisObject).getType() == ConnectivityManager.TYPE_VPN) {
-                    param.setResult(false);
-                    XposedBridge.log("com.lanyus.vpnbypass modify android.net.NetworkInfo(ConnectivityManager.TYPE_VPN).isConnectedOrConnecting return false");
+                    boolean result = (boolean) param.getResult();
+                    if (result) {
+                        param.setResult(false);
+                        XposedBridge.log("com.lanyus.vpnbypass modify android.net.NetworkInfo(ConnectivityManager.TYPE_VPN).isConnectedOrConnecting return false");
+                    }
                 }
             }
         });
@@ -74,8 +80,11 @@ public class XposedMain implements IXposedHookLoadPackage {
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
                 int transportType = (int) param.args[0];
                 if (transportType == NetworkCapabilities.TRANSPORT_VPN) {
-                    param.setResult(false);
-                    XposedBridge.log("com.lanyus.vpnbypass modify android.net.NetworkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN) return false");
+                    boolean result = (boolean) param.getResult();
+                    if (result) {
+                        param.setResult(false);
+                        XposedBridge.log("com.lanyus.vpnbypass modify android.net.NetworkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN) return false");
+                    }
                 }
             }
         });
