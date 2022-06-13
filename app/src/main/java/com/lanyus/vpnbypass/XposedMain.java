@@ -22,19 +22,23 @@ public class XposedMain implements IXposedHookLoadPackage {
         }
         XposedBridge.log("com.lanyus.vpnbypass Loaded app: " + lpparam.packageName);
 
-        hook(lpparam.classLoader);
+        hook(lpparam);
 
-//        XposedHelpers.findAndHookMethod(Application.class, "attach", Context.class, new XC_MethodHook() {
-//            @Override
-//            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
-//                super.afterHookedMethod(param);
-//                ClassLoader classLoader = ((Context) param.args[0]).getClassLoader();
-//                hook(classLoader);
-//            }
-//        });
+        new Timing(lpparam, false) {
+            @Override
+            protected void onNewActivity(XC_MethodHook.MethodHookParam param) {
+                super.onNewActivity(param);
+                try {
+                    hook(lpparam);
+                } catch (Exception e) {
+                    XposedBridge.log(e.getLocalizedMessage());
+                }
+            }
+        };
     }
 
-    public void hook(ClassLoader classLoader) {
+    public void hook(final XC_LoadPackage.LoadPackageParam lpparam) {
+        ClassLoader classLoader = lpparam.classLoader;
         XposedHelpers.findAndHookMethod("java.lang.System", classLoader, "getProperty", String.class, new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) throws Throwable {
@@ -43,7 +47,7 @@ public class XposedMain implements IXposedHookLoadPackage {
                     String result = (String) param.getResult();
                     if (result != null) {
                         param.setResult(null);
-                        XposedBridge.log("com.lanyus.vpnbypass modify java.lang.System.getProperty(http.proxyHost) return null");
+                        XposedBridge.log("com.lanyus.vpnbypass hook " + lpparam.packageName + " modify java.lang.System.getProperty(http.proxyHost) return null");
                     }
                 }
             }
@@ -55,7 +59,7 @@ public class XposedMain implements IXposedHookLoadPackage {
                 String result = (String) param.getResult();
                 if (result.startsWith("tun") || result.startsWith("ppp")) {
                     param.setResult("rmnet_data0");
-                    XposedBridge.log("com.lanyus.vpnbypass java.net.NetworkInterface.getName return " + result + " modify to rmnet_data0");
+                    XposedBridge.log("com.lanyus.vpnbypass hook " + lpparam.packageName + " java.net.NetworkInterface.getName return " + result + " modify to rmnet_data0");
                 }
             }
         });
@@ -68,7 +72,7 @@ public class XposedMain implements IXposedHookLoadPackage {
                     boolean result = (boolean) param.getResult();
                     if (result) {
                         param.setResult(false);
-                        XposedBridge.log("com.lanyus.vpnbypass modify android.net.NetworkInfo(ConnectivityManager.TYPE_VPN).isConnectedOrConnecting return false");
+                        XposedBridge.log("com.lanyus.vpnbypass hook " + lpparam.packageName + " modify android.net.NetworkInfo(ConnectivityManager.TYPE_VPN).isConnectedOrConnecting return false");
                     }
                 }
             }
@@ -83,7 +87,7 @@ public class XposedMain implements IXposedHookLoadPackage {
                     boolean result = (boolean) param.getResult();
                     if (result) {
                         param.setResult(false);
-                        XposedBridge.log("com.lanyus.vpnbypass modify android.net.NetworkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN) return false");
+                        XposedBridge.log("com.lanyus.vpnbypass hook " + lpparam.packageName + " modify android.net.NetworkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN) return false");
                     }
                 }
             }
